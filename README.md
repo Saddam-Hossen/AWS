@@ -85,7 +85,7 @@ nano ~/.ssh/config
 Add:
 
 ```ssh
-Host aws-ubuntu
+Host aws
     HostName 16.171.0.77
     User ubuntu
     IdentityFile ~/.ssh/snvn.pem
@@ -94,7 +94,7 @@ Host aws-ubuntu
 Then you can connect with:
 
 ```bash
-ssh aws-ubuntu
+ssh aws
 ```
 
 ---
