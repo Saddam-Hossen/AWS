@@ -715,6 +715,771 @@ Would you like me to:
 
   </details>
 
+---
+<details>
+  <summary><strong>Setup AWS For Project Deploy</strong></summary>
+	<details>
+             <summary><strong>Install java</strong></summary>
+		Great! You want to use **JDK 21**. Let's update everything accordingly for your **EC2 Ubuntu 24.04 Jenkins server**.
+
+---
+
+## ✅  EC2 Setup to Use Java 21 (instead of Java 17)
+
+---
+
+### 🔧 Step 2: Install Java 21
+
+```bash
+sudo apt update
+sudo apt install openjdk-21-jdk -y
+```
+
+Check version:
+
+```bash
+java -version
+```
+
+Expected:
+
+```bash
+openjdk 21.0.x ...
+```
+
+---
+
+### 🔧 Step 3: Set Java 21 as Default (if needed)
+
+```bash
+sudo update-alternatives --config java
+# Choose the Java 21 path if multiple installed
+```
+
+---
+
+## ✅ Update Dockerfile to Use JDK 21
+
+In your Spring Boot project, update the `Dockerfile` to use a JDK 21 base image:
+
+```Dockerfile
+# Dockerfile
+FROM eclipse-temurin:21-jdk-alpine
+COPY target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+```
+
+> `eclipse-temurin` is the official build from Adoptium — stable and widely used.
+
+---
+
+## ✅ Update Jenkinsfile (no changes needed for Java 21)
+
+As long as **your EC2 has Java 21** and **Dockerfile uses JDK 21**, no Jenkinsfile changes are needed.
+
+---
+
+## ✅ Summary of Changes
+
+| Component     | Change                               |
+| ------------- | ------------------------------------ |
+| EC2 Ubuntu    | Installed OpenJDK 21                 |
+| Dockerfile    | Switched base image to JDK 21        |
+| Jenkins Build | Inherits system JDK (now version 21) |
+
+---
+
+### ✅ Next Steps
+
+Let me know if you want me to now generate:
+
+* A complete working **`Dockerfile`**
+* A customized **`Jenkinsfile`**
+* A **`deployment.yaml`** to deploy to EKS
+
+
+	</details>
+ 
+ ---
+<details>
+  <summary><strong>Install jenkins</strong></summary>
+	Here's a **step-by-step guide to install Jenkins** on your **Ubuntu 24.04 EC2 instance** using bash commands — clean and copy-paste ready.
+
+---
+
+## ✅ Jenkins Installation on Ubuntu 24.04
+
+### 📌 Step 1: Add Jenkins GPG key and repository
+
+```bash
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+```
+
+---
+
+### 📌 Step 2: Update package list
+
+```bash
+sudo apt update
+```
+
+---
+
+### 📌 Step 3: Install Jenkins
+
+```bash
+sudo apt install -y jenkins
+```
+
+---
+
+### 📌 Step 4: Start and enable Jenkins
+
+```bash
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+```
+
+---
+
+### 📌 Step 5: Allow Jenkins port through the firewall (optional, if UFW is active)
+
+```bash
+sudo ufw allow 8080
+```
+
+---
+
+### 📌 Step 6: Check Jenkins status
+
+```bash
+systemctl status jenkins
+```
+
+You should see:
+
+```
+Active: active (running)
+```
+
+---
+
+### 📌 Step 7: Access Jenkins in your browser
+
+Open this in browser:
+
+```text
+http://<your-ec2-public-ip>:8080
+```
+
+Get the unlock password:
+
+```bash
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+```
+
+---
+
+## ✅ After Jenkins Starts
+
+1. Paste the password shown above
+2. Install **Suggested Plugins**
+3. Create **Admin User**
+4. Done! 🎉 Jenkins is ready to use.
+
+---
+
+Would you like help setting up:
+
+* Maven build
+* Docker build
+* Jenkinsfile
+* GitHub integration?
+
+
+</details>
+
+---
+<details>
+  <summary><strong>Insatall Docker and Buildx</strong></summary>
+	# Install-docker-with-buildx-for-multi-platform-builds
+
+It looks like you're manually adding the Docker repository to your **Ubuntu 24.04.2 LTS** system. If you're setting up Docker, follow these steps to ensure everything is configured correctly:
+
+### **Step 1: Install Required Dependencies**
+Before proceeding, install necessary dependencies:
+```bash
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+```
+
+### **Step 2: Add Docker’s Official GPG Key**
+You've already run this command, but to confirm:
+```bash
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/keyrings/docker.asc > /dev/null
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+```
+
+### **Step 3: Add the Docker Repository**
+You've correctly set up the repository:
+```bash
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+### **Step 4: Update Package List**
+```bash
+sudo apt update
+```
+
+### **Step 5: Install Docker and Buildx**
+Now, install Docker, including **Buildx** and **Compose**:
+```bash
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+### **Step 6: Start and Enable Docker**
+```bash
+sudo systemctl enable --now docker
+```
+
+### **Step 7: Verify Installation**
+Check if Docker and Buildx are installed:
+```bash
+docker --version
+docker buildx version
+```
+
+
+
+
+saddamnvn@DESKTOP-PTTGD06:~$ docker ps -a
+permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.49/containers/json?all=1": dial unix /var/run/docker.sock: connect: permission denied
+
+```
+permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock
+```
+
+means your current user (`saddamnvn`) doesn't have permission to access the Docker daemon.
+
+---
+
+### ✅ Fix: Add your user to the `docker` group
+
+Run the following command:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+Then **log out and log back in** (or reboot) to apply the group changes.
+
+> 💡 Alternatively, you can run `newgrp docker` in the same session to apply it immediately without rebooting.
+
+---
+
+### 🔁 Then try again:
+```bash
+docker info
+```
+
+It should now show the full Docker server info without any permission errors.
+
+---
+
+
+</details>
+---
+<details>
+  <summary><strong> Attach IAM Role to EC2 (Best Practice for Production)</strong></summary>
+   Yes — even if you SSH into your EC2 instance using the **root `.pem` key**, you still **need to configure the AWS CLI manually** by running:
+
+```bash
+aws configure
+```
+
+### 🔍 Why?
+
+The `.pem` key only gives you SSH (login) access to your EC2 server. It does **not automatically grant** AWS CLI permission to interact with services like:
+
+* EKS
+* ECR
+* S3
+* EC2
+* IAM
+
+---
+
+## ✅ Two Options to Give AWS CLI Permissions:
+
+### 🔹 Option 1: Use `aws configure` (Best for Quick Setup)
+
+Run on your EC2:
+
+```bash
+aws configure
+```
+
+Provide:
+
+* Access Key ID
+* Secret Access Key
+* Region (e.g. `us-east-1`)
+* Output format (e.g. `json`)
+
+You get these keys from:
+
+> AWS Console → IAM → Users → your-user → **Create access key**
+
+> ⚠️ This method saves credentials in `~/.aws/credentials`
+
+---
+
+### 🔹 Option 2: Attach IAM Role to EC2 (Best Practice for Production)
+
+1. Go to **EC2 Dashboard → Instances**
+2. Select your EC2 → **Actions → Security → Modify IAM Role**
+3. Attach a role with policies like:
+
+   * `AmazonEKSFullAccess`
+   * `AmazonEC2ContainerRegistryFullAccess`
+   * `AmazonS3FullAccess` (optional)
+
+✅ This way, AWS CLI will **auto-authenticate** without needing `aws configure`.
+
+---
+
+## 🔑 Summary
+
+| You have `.pem` file | Need `aws configure`?                 | Notes                          |
+| -------------------- | ------------------------------------- | ------------------------------ |
+| ✅ Yes                | ✅ Yes (if using access keys manually) | For `aws eks`, `aws ecr`, etc. |
+| ✅ Yes                | ❌ No (if EC2 has IAM role)            | Best practice for automation   |
+
+## Full Policy
+```bash
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "EC2Access",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:*",
+				"ec2-instance-connect:*",
+				"autoscaling:*",
+				"imagebuilder:*",
+				"elasticloadbalancing:*",
+				"ec2:DescribeVolumes",
+				"eks:*",
+				"ecr:*"
+				
+			],
+			"Resource": "*"
+		}
+	
+	]
+}
+```
+
+---
+
+
+</details>
+---
+<details>
+  <summary><strong>Create an ECR Repository</strong></summary>
+	When you run the `aws ecr create-repository` command, **Amazon creates a new private container image repository** under your AWS account in the specified region.
+
+---
+
+## ✅ What Happens When You Create an ECR Repository?
+
+### 🔧 Command Example:
+
+```bash
+aws ecr create-repository \
+  --repository-name springboot-ecr \
+  --region us-east-1
+```
+
+---
+
+## 🔍 Results:
+
+### 1. ✅ **A new private ECR repository is created**
+
+* Repository URI:
+
+  ```
+  123456789012.dkr.ecr.us-east-1.amazonaws.com/springboot-ecr
+  ```
+* You can push/pull Docker images using this URI.
+
+---
+
+### 2. ✅ **You can now push Docker images to it**
+
+After creating the repository, you can:
+
+```bash
+# Authenticate Docker to your ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
+
+# Tag and push an image
+docker tag my-app-image:latest 123456789012.dkr.ecr.us-east-1.amazonaws.com/springboot-ecr:latest
+docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/springboot-ecr:latest
+```
+
+---
+
+### 3. ✅ **It appears in the AWS Console**
+
+You’ll see it in:
+
+* **AWS Console → ECR → Repositories**
+* You can view image tags, scan for vulnerabilities, etc.
+
+---
+
+## 📌 Nothing bad happens:
+
+* You are **not charged** for creating the repo.
+* You are only billed for:
+
+  * **Storage** of images
+  * **Data transfer** when pulling images
+
+---
+
+## 🛑 If the name already exists?
+
+You get this error:
+
+```bash
+An error occurred (RepositoryAlreadyExistsException) ...
+```
+
+In that case, you can:
+
+* Use the existing repo
+* Or create a new one with a different name
+
+---
+Yes ✅ — `us-east-1` **is a predefined AWS region**.
+
+---
+
+## 🌍 AWS Regions Overview
+
+`us-east-1` stands for:
+
+> **US East (N. Virginia)**
+
+It’s the **default and most popular region**, often used in tutorials and infrastructure setups.
+
+---
+
+### ✅ Common Predefined AWS Regions:
+
+| Region Name              | Region Code      | Location            |
+| ------------------------ | ---------------- | ------------------- |
+| US East (N. Virginia)    | `us-east-1`      | 🇺🇸 North Virginia |
+| US East (Ohio)           | `us-east-2`      | 🇺🇸 Ohio           |
+| US West (N. California)  | `us-west-1`      | 🇺🇸 California     |
+| US West (Oregon)         | `us-west-2`      | 🇺🇸 Oregon         |
+| Asia Pacific (Mumbai)    | `ap-south-1`     | 🇮🇳 India          |
+| Asia Pacific (Singapore) | `ap-southeast-1` | 🇸🇬 Singapore      |
+| Asia Pacific (Tokyo)     | `ap-northeast-1` | 🇯🇵 Japan          |
+| Europe (Frankfurt)       | `eu-central-1`   | 🇩🇪 Germany        |
+| Europe (Ireland)         | `eu-west-1`      | 🇮🇪 Ireland        |
+
+---
+
+## 📌 How to Choose a Region?
+
+✅ You can choose any region **when creating ECR, EKS, S3, etc.**, but:
+
+* Pick a region **closest to your users or team**
+* Stick to **one region** for ECR + EKS + EC2 (to avoid cross-region issues)
+* `us-east-1` is perfectly fine and widely supported
+
+---
+
+## 🛠 Example (Creating ECR in `us-east-1`):
+
+```bash
+aws ecr create-repository \
+  --repository-name springboot-ecr \
+  --region us-east-1
+```
+## 🛠 OutPut (Creating ECR in `us-east-1`):
+
+```bash
+{
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:us-east-1:661062380194:repository/springboot-ecr",
+        "registryId": "661062380194",
+        "repositoryName": "springboot-ecr",
+        "repositoryUri": "661062380194.dkr.ecr.us-east-1.amazonaws.com/springboot-ecr",
+        "createdAt": "2025-06-20T16:05:30.326000+00:00",
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        },
+        "encryptionConfiguration": {
+            "encryptionType": "AES256"
+        }
+    }
+}
+```
+
+---
+
+
+
+</details>
+<details>
+  <summary><strong>Install eksctl & kubectl</strong></summary>
+	Here’s a clean, step-by-step guide to **install `eksctl` and `kubectl`** on your **Ubuntu EC2 instance** (like the one you're using):
+
+---
+
+## ✅ 1. Install `kubectl` (Kubernetes CLI)
+It looks like the `curl -LO` command failed because the nested `$(curl -s ...)` didn't resolve properly — likely due to quoting issues or missing dependencies.
+
+Let’s fix it by running **safe, step-by-step commands**:
+
+---
+
+## ✅ Correct Way to Install `kubectl` on Ubuntu
+
+### 🔹 Step 1: Get the latest stable version into a variable
+
+```bash
+KUBECTL_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+```
+
+### 🔹 Step 2: Download the binary
+
+```bash
+curl -LO "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+```
+
+### 🔹 Step 3: Make it executable and move it to PATH
+
+```bash
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin
+```
+
+### 🔹 Step 4: Test it
+
+```bash
+kubectl version --client
+```
+
+
+---
+
+## ✅ 2. Install `eksctl` (EKS Management CLI)
+
+```bash
+curl --silent --location "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
+
+sudo mv /tmp/eksctl /usr/local/bin
+```
+
+### 🔍 Verify:
+
+```bash
+eksctl version
+```
+
+---
+
+## ✅ What Next?
+
+Once installed, you can:
+
+* 🚀 Create a cluster:
+
+  ```bash
+  eksctl create cluster --name springboot-cluster --region us-east-1 --nodes 2
+  ```
+
+* 🔗 Connect to it:
+
+  ```bash
+  aws eks update-kubeconfig --region us-east-1 --name springboot-cluster
+  kubectl get nodes
+  ```
+
+---
+
+Great question!
+
+### ✅ "ctl" stands for **"control"**.
+
+In tools like `kubectl` or `eksctl`, it’s a short form used in the command-line tool name to indicate it’s used for **controlling** or **managing** something.
+
+---
+
+## 🔍 Examples:
+
+| Tool      | Full Meaning           | Purpose                                                 |
+| --------- | ---------------------- | ------------------------------------------------------- |
+| `kubectl` | **Kubernetes control** | Controls Kubernetes clusters (`kubectl get pods`, etc.) |
+| `eksctl`  | **EKS control**        | Creates and manages AWS EKS clusters                    |
+| `helm`    | (Not using ctl)        | Controls Helm charts for Kubernetes                     |
+
+---
+
+So:
+
+* `kubectl` = tool to **control Kubernetes**
+* `eksctl` = tool to **control AWS EKS**
+
+---
+
+
+</details>
+<details>
+  <summary><strong>Create an EKS Cluster</strong></summary>
+	Great to hear everything is working now! Here's a **step-by-step documented guide** to create an Amazon EKS cluster using `eksctl`, with detailed **troubleshooting** instructions and **CloudFormation console link** usage:
+
+---
+
+## ✅ Step-by-Step: Create Amazon EKS Cluster with `eksctl`
+
+### 📌 Prerequisites
+
+1. **IAM permissions required**:
+   Your IAM user or role must have the following permissions:
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Sid": "FullAccessForEKSSetup",
+         "Effect": "Allow",
+         "Action": [
+           "ec2:*",
+           "ec2-instance-connect:*",
+           "autoscaling:*",
+           "imagebuilder:*",
+           "elasticloadbalancing:*",
+           "eks:*",
+           "ecr:*",
+           "cloudformation:*",
+           "iam:*"
+         ],
+         "Resource": "*"
+       }
+     ]
+   }
+   ```
+
+2. **Install Tools**:
+
+   * `kubectl`
+   * `eksctl`
+   * `aws` CLI
+
+---
+
+## 🚀 Create Cluster Command
+
+```bash
+eksctl create cluster \
+  --name springboot-cluster \
+  --version 1.29 \
+  --region us-east-1 \
+  --nodegroup-name linux-nodes \
+  --node-type t3.medium \
+  --nodes 2 \
+  --nodes-min 1 \
+  --nodes-max 3 \
+  --managed
+```
+
+---
+
+## 🔍 If an Error Happens (e.g. Access Denied, Stack Creation Fails)
+
+1. Visit **CloudFormation Console** for the specified region:
+   👉 [https://console.aws.amazon.com/cloudformation/home?region=us-east-1](https://console.aws.amazon.com/cloudformation/home?region=us-east-1)
+
+2. In the CloudFormation console:
+
+   * Look for a stack named:
+     `eksctl-springboot-cluster-cluster`
+   * If it's in `ROLLBACK_IN_PROGRESS` or `ROLLBACK_FAILED` state:
+
+     * Click on it.
+     * Go to **Events** tab.
+     * Look for `CREATE_FAILED` lines for specific reasons (usually permission-related).
+
+3. Common Errors and Fixes:
+
+| ❌ Error                                          | ✅ Solution                                                                                                                            |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `AccessDenied`                                   | Your IAM role/user lacks permission. Add missing IAM actions (e.g., `iam:CreateRole`, `iam:PassRole`, `iam:CreateServiceLinkedRole`). |
+| `AlreadyExistsException`                         | The stack or cluster already exists. Use a different name or delete the existing one via the console.                                 |
+| `Resource creation cancelled`                    | Usually caused by earlier failures in the stack. Check the first `CREATE_FAILED` reason.                                              |
+| `eksctl delete cluster` says "cluster not found" | Manually delete the CloudFormation stacks via the [console](https://console.aws.amazon.com/cloudformation/home?region=us-east-1).     |
+
+---
+
+## ✅ Clean Up (If Needed)
+
+If your stack is broken or half-created:
+
+```bash
+eksctl delete cluster --name springboot-cluster --region us-east-1
+```
+
+If that fails, go to CloudFormation console → Delete the stack manually:
+👉 [https://console.aws.amazon.com/cloudformation/home?region=us-east-1](https://console.aws.amazon.com/cloudformation/home?region=us-east-1)
+
+---
+
+## 🟢 After Success
+
+After a successful cluster creation:
+
+```bash
+kubectl get nodes
+```
+
+This should show your EKS nodes.
+
+---
+
+
+</details>
+<details>
+  <summary><strong>Policy</strong></summary>
+</details>
+<details>
+  <summary><strong>Policy</strong></summary>
+</details>
+<details>
+  <summary><strong>Policy</strong></summary>
+</details>
+<details>
+  <summary><strong>Policy</strong></summary>
+</details>
+</details>
+
 
 
 ### 🔁 How They Work Together
