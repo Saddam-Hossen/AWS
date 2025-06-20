@@ -1467,7 +1467,27 @@ This should show your EKS nodes.
 
 </details>
 <details>
-  <summary><strong>Policy</strong></summary>
+  <summary><strong>Configure kubectl to talk to your EKS cluster</strong></summary>
+	Perfect! Let’s get you connected and deploy your Spring Boot app step-by-step.
+
+### 1. **Configure kubectl to talk to your EKS cluster**
+
+Run this command to update your kubeconfig file with your new cluster info:
+
+```bash
+aws eks --region us-east-1 update-kubeconfig --name springboot-cluster-v2
+```
+
+To verify, run:
+
+```bash
+kubectl get nodes
+```
+
+You should see the nodes in your cluster listed.
+
+---
+
 </details>
 <details>
   <summary><strong>Policy</strong></summary>
