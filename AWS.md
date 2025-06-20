@@ -801,6 +801,55 @@ Let me know if you want me to now generate:
 	</details>
  
  ---
+ <details>
+  <summary><strong>Install Maven</strong></summary>
+	The error:
+
+```
+mvn: not found
+```
+
+means that **Maven is not installed** or **not available in the Jenkins build environment’s PATH**.
+
+---
+
+### ✅ Solution Options:
+
+#### 🔧 Option 1: Install Maven on your Jenkins server
+
+If you're running Jenkins on an Ubuntu-based system, run:
+
+```bash
+sudo apt update
+sudo apt install maven -y
+```
+
+Then verify with:
+
+```bash
+mvn -v
+```
+
+> This will make `mvn` available globally, including for Jenkins.
+
+---
+
+#### ⚙️ Option 2: Use Jenkins Maven Tool Configuration (preferred for portability)
+
+1. Go to **Jenkins Dashboard → Manage Jenkins → Global Tool Configuration**.
+2. Under **Maven**, click **Add Maven**.
+
+   * Give it a name like `Maven3`.
+   * Choose `Install automatically` and select a version (e.g., 3.9.6).
+3. In your pipeline, specify the Maven tool:
+
+```groovy
+tools {
+  maven 'Maven3' // This must match the name in Jenkins Tool Configuration
+}
+```
+
+</details>
 <details>
   <summary><strong>Install jenkins</strong></summary>
 	Here's a **step-by-step guide to install Jenkins** on your **Ubuntu 24.04 EC2 instance** using bash commands — clean and copy-paste ready.
@@ -1489,9 +1538,7 @@ You should see the nodes in your cluster listed.
 ---
 
 </details>
-<details>
-  <summary><strong>Policy</strong></summary>
-</details>
+
 <details>
   <summary><strong>Policy</strong></summary>
 </details>
